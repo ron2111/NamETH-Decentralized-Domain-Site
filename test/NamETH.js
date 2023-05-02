@@ -3,6 +3,8 @@ const { expect } = require("chai");
 const tokens = (n) => {
   return ethers.utils.parseUnits(n.toString(), "ether");
 };
+// it creates the the input to a smart contract readable/interactive unit
+//  to convert to Wei value
 
 describe("NamETH", () => {
   let namETH;
@@ -18,6 +20,16 @@ describe("NamETH", () => {
 
     const NamETH = await ethers.getContractFactory("NamETH"); //gest the js version of smart contract with the help of ethers library
     namETH = await NamETH.deploy("NamETH", "NETH"); // then we deploy it
+
+    // list a domain
+    const transaction = await namETH
+      .connect(deployer)
+      .list("jack.eth", tokens(10));
+    // deployer: person who deploys the contract(we defined it), then we are using list function to list a domain
+
+    // tokens(10) means the domain's cost is 10 eth or 10000000000000000000 Wei
+    //  tokens function is created so as to not use this big number everytime
+    await transaction.wait();
   });
 
   describe("Deployement", () => {
@@ -37,6 +49,22 @@ describe("NamETH", () => {
     it("sets the owner", async () => {
       const result = await namETH.owner(); // owner smoke test
       expect(result).to.equal(deployer.address);
+    });
+
+    // test for maxSupply variable
+    it("Returns the max Supply", async () => {
+      const result = await namETH.maxSupply(); // owner smoke test
+      expect(result).to.equal(1);
+    });
+  });
+
+  // Test for domain struct
+  describe("Domain", () => {
+    it("Returns domain attributes", async () => {
+      domain = await namETH.domains(1);
+      expect(domain.name).to.be.equal("jack.eth");
+      expect(domain.cost).to.be.equal(tokens(10));
+      expect(domain.isOwned).to.be.equal(false);
     });
   });
 });
