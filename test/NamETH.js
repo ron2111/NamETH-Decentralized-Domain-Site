@@ -56,15 +56,85 @@ describe("NamETH", () => {
       const result = await namETH.maxSupply(); // owner smoke test
       expect(result).to.equal(1);
     });
+
+    it("Returns the total Supply", async () => {
+      const result = await namETH.totalSupply(); // owner smoke test
+      expect(result).to.equal(0);
+    });
   });
 
   // Test for domain struct
   describe("Domain", () => {
     it("Returns domain attributes", async () => {
-      domain = await namETH.domains(1);
+      domain = await namETH.getDomain(1);
       expect(domain.name).to.be.equal("jack.eth");
       expect(domain.cost).to.be.equal(tokens(10));
       expect(domain.isOwned).to.be.equal(false);
+    });
+  });
+
+  describe("Minting", () => {
+    // Minting tests
+    const ID = 1;
+    const AMOUNT = ethers.utils.parseUnits("10", "ether");
+
+    beforeEach(async () => {
+      const transaction = await namETH
+        .connect(owner1)
+        .mint(ID, { value: AMOUNT });
+      await transaction.wait();
+    });
+    it("Updates the owner", async () => {
+      // ownerOf function comes from ERC 721 library
+      const owner = await namETH.ownerOf(ID);
+      expect(owner).to.be.equal(owner1.address);
+    });
+
+    it("Updates the domain address", async () => {
+      // ownerOf function comes from ERC 721 library
+      const domain = await namETH.getDomain(ID);
+      expect(domain.isOwned).to.be.equal(true);
+    });
+
+    it("Updates the contract balance", async () => {
+      // ownerOf function comes from ERC 721 library
+      const result = await namETH.getBalance();
+      expect(result).to.be.equal(AMOUNT);
+    });
+
+    it("Updates the total supply", async () => {
+      // ownerOf function comes from ERC 721 library
+      const result = await namETH.totalSupply();
+      expect(result).to.be.equal(1);
+    });
+  });
+
+  //  Eithdrawing function tests
+  describe("Withdrawing", () => {
+    const ID = 1;
+    const AMOUNT = ethers.utils.parseUnits("10", "ether");
+
+    beforeEach(async () => {
+      balanceBefore = await ethers.provider.getBalance(deployer.address); // get the balance before
+      let transaction = await namETH
+        .connect(owner1)
+        .mint(ID, { value: AMOUNT });
+      // mint a nft with owner1
+      await transaction.wait();
+
+      transaction = await namETH.connect(deployer).withdraw(); // then we use the withdraw function to get the payment from contract to deployer's address
+      await transaction.wait();
+    });
+    it("Updates the owner balance", async () => {
+      // owner balance should be increased
+      const balanceAfter = await ethers.provider.getBalance(deployer.address);
+      expect(balanceAfter).to.be.greaterThan(balanceBefore);
+    });
+
+    it("Updates the contract balance", async () => {
+      // contract balance should be 0, because we have withdrawn all the eth
+      const result = await namETH.getBalance();
+      expect(result).to.be.equal(0);
     });
   });
 });
