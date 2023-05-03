@@ -31,10 +31,10 @@ function App() {
 
   return (
     <div>
+      <Navigation account={account} setAccount={setAccount} />
       <div className="cards__section">
         <h2 className="cards__title">Welcome to NamETH !</h2>
         {/* account test */}
-        <p className="cards__title">{account}</p>
       </div>
     </div>
   );
