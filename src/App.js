@@ -26,6 +26,7 @@ function App() {
     setProvider(provider);
 
     const network = await provider.getNetwork(); // hardhat network
+    console.log(network);
 
     const namETH = new ethers.Contract(
       config[network.chainId].NamETH.address,
