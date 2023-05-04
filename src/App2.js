@@ -26,22 +26,17 @@ function App() {
     setProvider(provider);
 
     const network = await provider.getNetwork(); // hardhat network
-
     const namETH = new ethers.Contract(
       config[network.chainId].NamETH.address,
       NamETH,
       provider
       //ethers command to get js version of smart contract, requires 3 parameters: (address, abi, providerOrSigner)
-      // taking the address from config.json file
     );
     setNamETH(namETH);
 
     const maxSupply = await namETH.maxSupply();
-    // Getting max supply from contract
-
     const domains = [];
 
-    // getting all the domains till maxSupply from the contract using getDomain Function
     for (var i = 1; i <= maxSupply; i++) {
       const domain = await namETH.getDomain(i);
       domains.push(domain);
@@ -68,7 +63,6 @@ function App() {
       <Navigation account={account} setAccount={setAccount} />
 
       <Search />
-      {/* Search module-placeholder */}
 
       <div className="cards__section">
         <h2 className="cards__title">Why you need a domain name.</h2>
@@ -80,7 +74,6 @@ function App() {
         <hr />
 
         <div className="cards">
-          {/* domain listing */}
           {domains.map((domain, index) => (
             <Domain
               domain={domain}

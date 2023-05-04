@@ -106,7 +106,7 @@ header {
   background-position: right;
   background-repeat: no-repeat;
   background-color: var(--clr-grey);
-  min-height: 50vh;
+  min-height: 55vh;
 
   position: relative;
 }
